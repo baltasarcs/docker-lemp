@@ -21,12 +21,12 @@ Sempre que houver a necessidade de alterar algum arquivo de configuração, rein
 
 ### Configurando virtual hosts
 Dentro de nginx/conf renomeie o arquivo site.conf-example para site.conf e adicione quantos hosts forem necessários.
-** Se você é esperto e usa linux, altere o /etc/hosts **
-** se sofre com windows, altere o C:\Windows\System32\drivers\etc\hosts **
+*Se você é esperto e usa linux, altere o /etc/hosts*
+*se sofre com windows*, altere o C:\Windows\System32\drivers\etc\hosts
 Adicionando ao final do arquivo o redirecionamento p/ o(s) virtual hosts definido(s) no arquivo /nginx/conf/site.conf, por exemplo:
 ```
 127.0.0.1 mydomain.com
 127.0.0.1 otherdomain.com.br
 ```
-*** No windows podem haver problemas com o drive bridge, portanto altere no final
-do arquivo docker-compose.yml de bridge para nat ***
+***No windows podem haver problemas com o drive bridge, portanto altere no final
+do arquivo docker-compose.yml de bridge para nat
