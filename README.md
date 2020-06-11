@@ -16,7 +16,6 @@ Identifique o IPAddress do container que esta rodando nginx com:
 docker inspect nginx
 
 Se você é esperto e usa linux, altere o /etc/hosts, do contrario, se sofre com windows, altere o C:\Windows\System32\drivers\etc\hosts adicionando ao final do arquivo o 
-
 redirecionamento p/ o VIRTUAL_HOST definido no arquivo .env, por exemplo:
 
 IPAddress mydomain.com
