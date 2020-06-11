@@ -1,0 +1,6 @@
+mysql/8.0/data/*
+mysql/8.0/log/*
+.env
+nginx/logs/*
+nginx/conf/*
+!nginx/conf/site.conf-example
