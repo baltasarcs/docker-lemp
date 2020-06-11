@@ -28,5 +28,5 @@ Adicionando ao final do arquivo o redirecionamento p/ o(s) virtual hosts definid
 127.0.0.1 mydomain.com
 127.0.0.1 otherdomain.com.br
 ```
-***No windows podem haver problemas com o drive bridge, portanto altere no final
+*** No windows podem haver problemas com o drive bridge, portanto altere no final
 do arquivo docker-compose.yml de bridge para nat
