@@ -42,8 +42,6 @@ services:
     volumes:
       - ${APPLICATION}:/var/www/html/
       - ${PHP_INI}:/usr/local/etc/php/php.ini
-    environment:
-      - VIRTUAL_HOST=${VIRTUAL_HOST}
     links:
       - mysql
     networks:
