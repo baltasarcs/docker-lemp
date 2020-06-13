@@ -4,3 +4,4 @@ mysql/8.0/log/*
 nginx/logs/*
 nginx/conf/*
 !nginx/conf/site.conf-example
+!nginx/conf/default.conf
