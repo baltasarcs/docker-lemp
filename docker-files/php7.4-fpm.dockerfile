@@ -76,19 +76,26 @@ RUN if [ ${INSTALL_PDO_POSTGRESQL} = true ]; then \
 # PDO_ORACLE:
 #####################################
 
-#ARG INSTALL_PDO_ORACLE=false
-#RUN if [ ${INSTALL_PDO_ORACLE} = true ]; then \
-#COPY instantclient-basic-linux.x64-19.5.0.0.0dbru.zip /opt/oracle/instantclient-basic-linux.x64-19.5.0.0.0dbru.zip
-#COPY instantclient-sdk-linux.x64-19.5.0.0.0dbru.zip /opt/oracle/instantclient-sdk-linux.x64-19.5.0.0.0dbru.zip
-#RUN unzip /opt/oracle/instantclient-basic-linux.x64-19.5.0.0.0dbru.zip -d /opt/oracle \
-#    unzip /opt/oracle/instantclient-sdk-linux.x64-19.5.0.0.0dbru.zip -d /opt/oracle \
-#    && ln -s /opt/oracle/instantclient_19_5/libclntsh.so.12.1 /opt/oracle/instantclient_19_1/libclntsh.so \
-#    && ln -s /opt/oracle/instantclient_19_5/libclntshcore.so.19.1 /opt/oracle/instantclient_19_1/libclntshcore.so \
-#    && ln -s /opt/oracle/instantclient_19_5/libocci.so.12.1 /opt/oracle/instantclient_19_1/libocci.so \
-#    && rm -rf /opt/oracle/*.zip
-#RUN echo 'instantclient,/opt/oracle/instantclient_19_5/' | pecl install oci8 \
-#    RUN docker-php-ext-install pdo_oci \
-#;fi
+ARG INSTALL_PDO_ORACLE=false
+RUN if [ ${INSTALL_PDO_ORACLE} = true ]; then \
+    # Install pdo_oracle and oci8
+    apt-get install -y --no-install-recommends wget bsdtar libaio1 && \
+    wget https://download.oracle.com/otn_software/linux/instantclient/195000/instantclient-basiclite-linux.x64-19.5.0.0.0dbru.zip && \
+    wget https://download.oracle.com/otn_software/linux/instantclient/195000/instantclient-sqlplus-linux.x64-19.5.0.0.0dbru.zip && \
+    wget https://download.oracle.com/otn_software/linux/instantclient/195000/instantclient-sdk-linux.x64-19.5.0.0.0dbru.zip && \
+    unzip instantclient-basiclite-linux.x64-19.5.0.0.0dbru.zip -d /usr/local && \
+    unzip instantclient-sqlplus-linux.x64-19.5.0.0.0dbru.zip -d /usr/local && \
+    unzip instantclient-sdk-linux.x64-19.5.0.0.0dbru.zip -d /usr/local && \        
+    ln -s /usr/local/instantclient_19_5 /usr/local/instantclient && \
+    #ln -s /usr/local/instantclient_19_5/libclntsh.so.19.1 /usr/local/instantclient/libclntsh.so && \
+    ln -s /usr/local/instantclient_19_5/lib* /usr/lib && \
+    ln -s /usr/local/instantclient/sqlplus /usr/bin/sqlplus && \
+    rm -rf *.zip && \
+    echo 'instantclient,/usr/local/instantclient/' | pecl install oci8 && \
+    docker-php-ext-enable oci8 && \
+    docker-php-ext-configure pdo_oci --with-pdo-oci=instantclient,/usr/local/instantclient && \
+    docker-php-ext-install pdo_oci \
+;fi
 
 #####################################
 # bcmath:
