@@ -12,12 +12,23 @@ RUN apt-get update \
     unzip
 
 # Common php-ext and requirements
-RUN apt-get install -y --no-install-recommends libpq-dev libz-dev \
+RUN apt-get install -y --no-install-recommends libpq-dev libz-dev libzip-dev \
  && docker-php-ext-install pcntl \
  && docker-php-ext-install session \
  && docker-php-ext-install phar \
  && docker-php-ext-install iconv \
- && docker-php-ext-install pdo
+ && docker-php-ext-install pdo \
+ && docker-php-ext-install zip
+
+#####################################
+# NPM:
+#####################################
+
+ARG INSTALL_NPM=false
+RUN if [ ${INSTALL_NPM} = true ]; then \
+    # install nodejs and npm
+    curl -sL https://deb.nodesource.com/setup_11.x | bash - && apt-get install -y --no-install-recommends nodejs \
+;fi
 
 #####################################
 # GD:
@@ -73,11 +84,11 @@ RUN if [ ${INSTALL_PDO_POSTGRESQL} = true ]; then \
 ;fi
 
 #####################################
-# PDO_ORACLE:
+# OCI8_PDO_ORACLE:
 #####################################
 
-ARG INSTALL_PDO_ORACLE=false
-RUN if [ ${INSTALL_PDO_ORACLE} = true ]; then \
+ARG INSTALL_OCI8_PDO_ORACLE=false
+RUN if [ ${INSTALL_OCI8_PDO_ORACLE} = true ]; then \
     # Install pdo_oracle and oci8
     apt-get install -y --no-install-recommends wget bsdtar libaio1 && \
     wget https://download.oracle.com/otn_software/linux/instantclient/195000/instantclient-basiclite-linux.x64-19.5.0.0.0dbru.zip && \
@@ -120,20 +131,6 @@ RUN if [ ${INSTALL_OPCACHE} = true ]; then \
 # COPY ./../php/7.4-fpm/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 #####################################
-# xdebug:
-#####################################
-
-ARG INSTALL_XDEBUG=false
-RUN if [ ${INSTALL_XDEBUG} = true ]; then \
-    # Install the xdebug
-    pecl install xdebug \
-    docker-php-ext-enable xdebug \
-;fi
-
-# Copy xdebug configration
-# COPY ./../php/7.4-fpm/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
-
-#####################################
 # composer:
 #####################################
 
@@ -164,8 +161,28 @@ RUN if [ ${INSTALL_JSON_XML} = true ]; then \
     && docker-php-ext-install json xml dom xmlrpc xsl \
 ;fi
 
+#####################################
+# xdebug:
+#####################################
+
+ARG INSTALL_XDEBUG=false
+RUN if [ ${INSTALL_XDEBUG} = true ]; then \
+    pecl install xdebug && docker-php-ext-enable xdebug && \
+    printf "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so) \n\
+        	xdebug.remote_enable=on \n\
+        	xdebug.remote_handler=dbgp \n\
+        	xdebug.remote_port=9001 \n\
+        	xdebug.remote_autostart=on \n\
+        	xdebug.remote_connect_back=on \n\
+        	xdebug.idekey=docker \n\
+        	xdebug.remote_log=/var/log/xdebug.log \n\
+        	xdebug.default_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini && \
+    touch /var/log/xdebug.log && \
+    chown www-data /var/log/xdebug.log \
+;fi
+
 # Clear package lists
-RUN rm -rf /var/lib/apt/lists/*
+RUN rm -rf /var/lib/apt/lists/* && apt-get autoremove
 
 # clear source
 RUN docker-php-source delete
@@ -178,4 +195,4 @@ RUN find /var/www/html -type f -exec chmod u+rw,g+rw,o+r {} +
 
 CMD ["php-fpm"]
 
-EXPOSE 9000 80
+EXPOSE 9000 9001
