@@ -27,7 +27,7 @@ RUN apt-get install -y --no-install-recommends libpq-dev libz-dev libzip-dev \
 ARG INSTALL_NPM=false
 RUN if [ ${INSTALL_NPM} = true ]; then \
     # install nodejs and npm
-    curl -sL https://deb.nodesource.com/setup_11.x | bash - && apt-get install -y --no-install-recommends nodejs \
+    curl -sL https://deb.nodesource.com/setup_12.x | bash - && apt-get install -y --no-install-recommends nodejs \
 ;fi
 
 #####################################
