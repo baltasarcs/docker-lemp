@@ -1,6 +1,6 @@
 FROM php:7.4-fpm
 
-MAINTAINER Baltasar Santos <baltasarc.s@gmail.com>
+LABEL maintainer="Baltasar Santos <baltasarc.s@gmail.com>"
 
 # Additional tools
 RUN apt-get update \
