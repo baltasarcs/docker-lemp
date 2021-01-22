@@ -9,7 +9,8 @@ RUN apt-get update \
     libssl-dev \
     openssl \
     git \
-    unzip
+    unzip \
+    libxml2-dev
 
 # Common php-ext and requirements
 RUN apt-get install -y --no-install-recommends libpq-dev libz-dev libzip-dev \
@@ -18,7 +19,9 @@ RUN apt-get install -y --no-install-recommends libpq-dev libz-dev libzip-dev \
  && docker-php-ext-install phar \
  && docker-php-ext-install iconv \
  && docker-php-ext-install pdo \
- && docker-php-ext-install zip
+ && docker-php-ext-install zip \
+ && docker-php-ext-install soap \
+ && docker-php-ext-install intl
 
 #####################################
 # NPM:
@@ -27,7 +30,7 @@ RUN apt-get install -y --no-install-recommends libpq-dev libz-dev libzip-dev \
 ARG INSTALL_NPM=false
 RUN if [ ${INSTALL_NPM} = true ]; then \
     # install nodejs and npm
-    curl -sL https://deb.nodesource.com/setup_11.x | bash - && apt-get install -y --no-install-recommends nodejs \
+    curl -sL https://deb.nodesource.com/setup_15.x | bash - && apt-get install -y --no-install-recommends nodejs \
 ;fi
 
 #####################################
@@ -37,9 +40,9 @@ RUN if [ ${INSTALL_NPM} = true ]; then \
 ARG INSTALL_GD=false
 RUN if [ ${INSTALL_GD} = true ]; then \
     # Install gd and requirements
-    apt-get install -y --no-install-recommends libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
- # && docker-php-ext-configure gd --with-freetype --with-jpg \
- && docker-php-ext-install gd \
+    apt-get install -y --no-install-recommends libpng-dev libjpeg62-turbo-dev libfreetype6-dev && \
+    docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ && \
+    docker-php-ext-install gd \
 ;fi
 
 #####################################
@@ -96,13 +99,13 @@ RUN if [ ${INSTALL_OCI8_PDO_ORACLE} = true ]; then \
     wget https://download.oracle.com/otn_software/linux/instantclient/195000/instantclient-sdk-linux.x64-19.5.0.0.0dbru.zip && \
     unzip instantclient-basiclite-linux.x64-19.5.0.0.0dbru.zip -d /usr/local && \
     unzip instantclient-sqlplus-linux.x64-19.5.0.0.0dbru.zip -d /usr/local && \
-    unzip instantclient-sdk-linux.x64-19.5.0.0.0dbru.zip -d /usr/local && \        
+    unzip instantclient-sdk-linux.x64-19.5.0.0.0dbru.zip -d /usr/local && \
     ln -s /usr/local/instantclient_19_5 /usr/local/instantclient && \
     #ln -s /usr/local/instantclient_19_5/libclntsh.so.19.1 /usr/local/instantclient/libclntsh.so && \
     ln -s /usr/local/instantclient_19_5/lib* /usr/lib && \
     ln -s /usr/local/instantclient/sqlplus /usr/bin/sqlplus && \
     rm -rf *.zip && \
-    echo 'instantclient,/usr/local/instantclient/' | pecl install oci8 && \
+    echo 'instantclient,/usr/local/instantclient/' | pecl install oci8-2.2.0 && \
     docker-php-ext-enable oci8 && \
     docker-php-ext-configure pdo_oci --with-pdo-oci=instantclient,/usr/local/instantclient && \
     docker-php-ext-install pdo_oci \
